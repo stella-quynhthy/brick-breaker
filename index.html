@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="stylesheet.css" rel="stylesheet">
+</head>
+<body>
+    <!-- STEP 1: Game Title -->
+  <!-- Add a heading for the game name -->
+  <h1>Block Breaker</h1>
+
+  <!-- STEP 2: UI Bar -->
+  <!-- Add a div with id="ui" -->
+  <!-- Inside it, add three spans showing: Score, Lives, Level -->
+  <!-- Each value should be wrapped in a <strong> with an id -->
+  <!--   ids: "score", "lives", "level" -->
+  <div id="ui">
+    <span>Score: <strong id="score">0</strong></span>
+    <span>Lives: <strong id="lives">5</strong></span>
+    <span>Level: <strong id="level">1</strong></span>
+  </div>
+
+  <!-- STEP 3: Game Canvas -->
+  <!-- Add a <canvas> element with id="gameCanvas" -->
+  <!-- Set width="480" and height="400" -->
+  <canvas id="gameCanvas" width="480" height="400"></canvas>  
+
+  <!-- STEP 4: Message Paragraph -->
+  <!-- Add a <p> with id="message" -->
+  <!-- Default text: "Press SPACE or click to start" -->
+  <p id="message">Press SPACE for click to start</p>
+
+  <!-- STEP 5: Restart Button -->
+  <!-- Add a <button> with id="restartBtn" -->
+  <!-- Button label: "RESTART" -->
+  <button id="restartBtn">RESTART</button>
+
+  <!-- STEP 6: Link the external JavaScript file -->
+  <!-- Place it at the bottom of the body -->
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+/* STEP 1: Define CSS variables */
+/* Use :root to store your color and font choices in one place */
+/* This makes it easy to change your whole theme by editing just a few lines */
+/* Example properties you might define: */
+/*   background color, primary accent color, text color, button color */
+/* You can name them anything: --bg, --accent, --highlight, --dark, etc. */
+
+:root {
+    --bg: white;
+    --accent:blue;
+    --text: black;
+}
+
+
+/* STEP 2: Reset default styles */
+/* Browsers add default margin and padding to elements */
+/* Reset these so your layout behaves consistently */
+/* Also set box-sizing: border-box so padding doesn't break your widths */
+
+
+
+
+/* STEP 3: Style the body */
+/* Set your background color */
+/* Choose a font-family that fits your theme */
+/* Center all content using flexbox */
+/* Add some padding so content isn't right at the edge */
+body {
+    background-color: var(--bg);
+    font-family: 'Courier New', Courier, monospace;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 15px;
+}
+
+
+
+/* STEP 4: Style the h1 heading */
+/* Make it feel like a game title — big, bold, distinctive */
+/* Choose a font-size and letter-spacing that feels right */
+/* Pick a color that stands out against your background */
+/* Optional: add a text-shadow to make it pop */
+/* Optional: add a CSS animation (flicker, pulse, glow, bounce...) */
+
+
+
+
+/* STEP 5: Style the #ui bar (Score / Lives / Level) */
+/* Lay out the three stats side by side using flexbox */
+/* Add spacing between them */
+/* Choose a font-size and color that's easy to read at a glance */
+span {
+    padding: 10px;
+}
+
+
+
+/* STEP 6: Style the <canvas> element */
+/* Set display: block (removes unwanted inline spacing) */
+/* Give it a background color — this is your playing field */
+/* Optional: add a border or box-shadow to frame it */
+canvas {
+    display: block;
+    background-color: #030570;
+    border: 2px solid black;
+    margin: 15px;
+}
+
+
+
+/* STEP 7: Style the #message paragraph */
+/* This text tells the player what's happening (start, lose life, game over) */
+/* Make it noticeable but not distracting */
+/* Set a min-height so the layout doesn't jump when the text changes */
+#message {
+    min-height: 30px;
+}
+
+
+
+/* STEP 8: Style the #restartBtn button */
+/* Style it to match your overall theme */
+/* Add padding so it's easy to click */
+/* Set cursor: pointer */
+/* Add a transition so hover feels smooth */
+#restartBtn {
+    padding: 10px;
+}
+
+
+
+/* STEP 9: Style the #restartBtn:hover state */
+/* Change the appearance when the player hovers over it */
+/* Could be: color swap, glow, scale, underline */
+
+
+
+/* BONUS: Want to go further? Try these:
+   - Add a background texture or pattern to the body
+   - Style the score/lives values differently from their labels
+   - Add a @keyframes animation to the title or message
+   - Use a Google Font to give your game a unique personality  
+*/
