@@ -48,16 +48,28 @@ class ball {
         };
         this.x+=this.dx;
         this.y+=this.dy;
+        /*left wall*/
         if (this.x+this.radius < 0) {
             this.x = this.radius;
             this.dx*=-1;
         };
+        /*right wall*/
         if (this.x+this.radius > canvas.width) {
             this.x = canvas.width-this.radius;
             this.dx*=-1;
         };
-        if (this.y+/*03.18.26*/)
-    }
+        /*top wall*/
+        if (this.y-this.radius < 0){
+            this.y = this.radius;
+            this.dy*=-1;
+        };
+    };
+    launch(){
+        if (!this.launch) {
+            this.launch = true;
+            this.dy = -Math.abs(this.y);
+        };
+    };
 };
 
 /* reset() method: */
@@ -110,6 +122,36 @@ class ball {
 /* reset() method: */
 /*   - Re-center the paddle horizontally */
 
+class paddle {
+    constructor() {
+        this.width = 90;
+        this.height = 12;
+        this.x = (canvas.width-this.width)/2;
+        this.y = canvas.height-24;
+        this.speed = 7;
+        this.leftPressed = false;
+        this.rightPressed = false;
+    };
+    draw() {
+        ctx.beginPath();
+        ctx.roundRect(this.x, this.y, this.width, this.height, 10);
+        ctx.fillStyle = "white";
+        ctx.fill();
+        ctx.closePath();
+    };
+    update() {
+        if (this.rightPressed && this.x+this.width < canvas.width) {
+            this.x += this.speed;
+        };
+        if (this.leftPressed && this.x > 0) {
+            this.x -= this.speed;
+        };
+    }
+    reset() {
+        this.x = (canvas.width-this.width)/2;
+    }
+}
+
 
 
 /* STEP 4: CLASS — Brick */
@@ -129,6 +171,27 @@ class ball {
 /*   - Use this.color as the fill */
 /*   - Optional: draw a highlight line near the top of the brick */
 
+class brick {
+    constructor(x, y, color, points) {
+        this.x = x;
+        this.y = y;
+        this.width = 64;
+        this.height = 18;
+        this.color = color;
+        this.points = points;
+        this.alive = true;
+    };
+    draw() {
+        if (!this.alive) {
+            return;
+        }
+        ctx.beginPath();
+        ctx.roundRect(this.x, this.y, this.width, this.height, 10);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.closePath();
+    };
+};
 
 
 /* STEP 5: CLASS — BrickGrid */
@@ -160,6 +223,38 @@ class ball {
 /*   - Return true if every brick has alive === false */
 /*   - Hint: use .every() */
 
+class brickGrid {
+    constructor(number) {
+        this.bricks = [];
+        this.cols = 6;
+        this.rows = 4 + level;
+        this.padding = 8;
+        this.offsetTop = 40;
+        this.offsetLeft = 20;
+        this.color = ["red", "blue", "green", "yellow", "purple", "orange"];
+        this.points = [120, 100, 80, 60, 40, 20];
+        this.build();
+    };
+    build() {
+        const brickWidth = 64;
+        const brickHeight = 18;
+        for (let r = 0; r < this.rows; r++) {
+            for (let c=0; c < this.cols; c++) {
+                const x = offsetLeft + c * (brickWidth + padding);
+                const y = offsetTop + r * (brickHeight + padding);
+                const colorIndex = r%this.color.length;
+                this.bricks.push(new brick(x, y, this.color[colorIndex], this.points[colorIndex]));
+            };
+        };
+    };
+    draw() {
+        this.bricks.forEach(b => b.draw());
+    };
+    allCleared() {
+        return this.bricks.every(b => !b.alive);
+    };
+};
+
 
 /* STEP 6: COLLISION DETECTION — Ball vs Paddle */
 
@@ -175,6 +270,16 @@ class ball {
 /*   - Use hitPos to angle the ball's dx */
 /*   - Make sure dy is negative (ball bounces up) */
 /*   - Push ball above the paddle so it doesn't get stuck */
+function checkBallPaddleCollision(ball, paddle) {
+    if (ball.y + ball.radius >= paddle.y && ball.y - ball.radius <= paddle.y + paddle.height && ball.x >= paddle.x && ball.x <= paddle.x + paddle.width) {
+        const hitPos = (ball.x - paddle.x)/paddle.width;
+        const angle = (hitPos - 0.5)*2;
+        const speed = Math.sqrt(ball.dx*ball.dx+ball.dy*ball.dy)
+        ball.dx = speed*angle*1.2;
+        ball.dy-Math.abs(ball.dy);
+        ball.y = paddle.y - ball.radius;
+    };
+};
 
 
 /* STEP 7: COLLISION DETECTION — Ball vs Bricks */
