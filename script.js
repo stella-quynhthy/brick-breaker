@@ -299,7 +299,29 @@ function checkBallPaddleCollision(ball, paddle) {
 /*           else: reverse ball.dy */
 /*       - Break out of the loop (only one brick per frame) */
 /* Return pointsEarned */
-
+function checkBallBrickCollisions(ball, brickGrid) {
+    for (const brick of brickGrid.bricks) {
+        if (brick.alive === false) {
+            continue;
+        };
+        const closestX = Math.max(brick.x, Math.min(ball.x, brick.x + brick.width));
+        const closestY = Math.max(brick.y, Math.min(ball.y, brick.y + brick.height));
+        const distX = ball.x - closestX;
+        const distY = ball.y - closestY;
+        const distance = Math.sqrt(distX*distX+distY*distY);
+        if (distance < ball.radius) {
+            brick.alive = false;
+            pointsEarned+=brick.points;
+            if (Math.abs(distX) > Math.abs(distY)) {
+                ball.dx*-1;
+            } else {
+                ball.dy*-1;
+            };
+            break;
+        };
+    };
+    return pointsEarned;
+};
 
 
 /* STEP 8: CLASS — Game */
@@ -315,7 +337,97 @@ function checkBallPaddleCollision(ball, paddle) {
 /*   - Set this.animFrameId = null */
 /*   - Call this.setupInput() */
 /*   - Call this.setupRestart() */
+class game {
+    constructor() {
+        this.ball = new ball();
+        this.paddle = new paddle();
+        this.score = 0;
+        this.lives = 3;
+        this.level = 1;
+        this.brickGrid = new brickGrid(this.level);
+        this.running = false;
+        this.animFrameId = null;
+        this.setupInput();
+        this.setupRestart();
+    };
 
+    setupInput() {
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowRight") {
+                this.paddle.rightPressed = true;
+            }
+            if (e.key === "ArrowLeft") {
+                this.paddle.leftPressed = true;
+            }
+            if (e.key === " " || e.key === "ArrowUp") {
+                e.preventDefault();
+                this.ball.launch;
+            };
+        });
+         document.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowRight") {
+                this.paddle.rightPressed = false;
+            };
+            if (e.key === "ArrowLeft") {
+                this.paddle.leftPressed = false;
+            };
+         });
+         canvas.addEventListener("click", () => {
+            this.ball.launch;
+         });
+         canvas.addEventListener("mousemove", (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX-rect.left;
+            this.paddle.x = mouseX-this.paddle.width;
+            this.paddle.x = Math.max(0, Math.min(canvas.width-this.paddle.width, this.paddle.x));
+         });
+    };
+
+    setupRestart() {
+        restartBtn.addEventListener("click", () => {
+            this.restart(
+            );
+        });
+    };
+
+    restart() {
+        cancelAnimationFrame(this.animFrameId);
+        this.score = 0;
+        this.lives = 5;
+        this.level = 1;
+        this.brickGrid = new brickGrid(this.level);
+        this.paddle.reset;
+        this.ball.reset;
+        this.running = true;
+        message.textContent = "Press SPACE or click to start";
+        this.updateUI();
+        this.loop();
+    };
+/*skipping nextLevel()*/
+
+    loseLife() {
+        this.lives--;
+        this.updateUI();
+        if (this.lives <= 0) {
+            this.gameOver();
+        } else {
+            this.paddle.reset;
+            this.ball.reset;
+        };
+    };
+
+    gameOver() {
+        this.running = false;
+        message.textContent = `GAME OVER! Score: ${this.score}`;
+    };
+
+    updateUI() {
+        scoreDisplay.textContent = this.score;
+        livesDisplay.textContent = this.lives;
+        levelDispay.textContent = this.level;
+    }
+
+}
 /* setupInput() method: */
 /*   - Listen for 'keydown' events */
 /*       - ArrowRight: set paddle.rightPressed = true */
