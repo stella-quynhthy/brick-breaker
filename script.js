@@ -67,7 +67,7 @@ class ball {
     launch(){
         if (!this.launch) {
             this.launch = true;
-            this.dy = -Math.abs(this.y);
+            this.dy = -Math.abs(this.dy);
         };
     };
 };
@@ -121,7 +121,7 @@ class ball {
 
 /* reset() method: */
 /*   - Re-center the paddle horizontally */
-
+//=================================== CHECKED ONCE =========================================
 class paddle {
     constructor() {
         this.width = 90;
@@ -170,7 +170,7 @@ class paddle {
 /*   - Draw a filled rectangle at this.x, this.y with this.width, this.height */
 /*   - Use this.color as the fill */
 /*   - Optional: draw a highlight line near the top of the brick */
-
+//============================== CHECKED TWICE ================================
 class brick {
     constructor(x, y, color, points) {
         this.x = x;
@@ -182,9 +182,8 @@ class brick {
         this.alive = true;
     };
     draw() {
-        if (!this.alive) {
-            return;
-        }
+        if (!this.alive) return;
+        
         ctx.beginPath();
         ctx.roundRect(this.x, this.y, this.width, this.height, 10);
         ctx.fillStyle = this.color;
@@ -240,8 +239,8 @@ class brickGrid {
         const brickHeight = 18;
         for (let r = 0; r < this.rows; r++) {
             for (let c=0; c < this.cols; c++) {
-                const x = offsetLeft + c * (brickWidth + padding);
-                const y = offsetTop + r * (brickHeight + padding);
+                const x = this.offsetLeft + c * (brickWidth + this.padding);
+                const y = this.offsetTop + r * (brickHeight + this.padding);
                 const colorIndex = r%this.color.length;
                 this.bricks.push(new brick(x, y, this.color[colorIndex], this.points[colorIndex]));
             };
@@ -276,7 +275,7 @@ function checkBallPaddleCollision(ball, paddle) {
         const angle = (hitPos - 0.5)*2;
         const speed = Math.sqrt(ball.dx*ball.dx+ball.dy*ball.dy)
         ball.dx = speed*angle*1.2;
-        ball.dy-Math.abs(ball.dy);
+        ball.dy = -Math.abs(ball.dy);
         ball.y = paddle.y - ball.radius;
     };
 };
@@ -300,6 +299,7 @@ function checkBallPaddleCollision(ball, paddle) {
 /*       - Break out of the loop (only one brick per frame) */
 /* Return pointsEarned */
 function checkBallBrickCollisions(ball, brickGrid) {
+    let pointsEarned = 0
     for (const brick of brickGrid.bricks) {
         if (brick.alive === false) {
             continue;
@@ -337,7 +337,7 @@ function checkBallBrickCollisions(ball, brickGrid) {
 /*   - Set this.animFrameId = null */
 /*   - Call this.setupInput() */
 /*   - Call this.setupRestart() */
-class game {
+class Game {
     constructor() {
         this.ball = new ball();
         this.paddle = new paddle();
@@ -352,28 +352,28 @@ class game {
     };
 
     setupInput() {
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "ArrowRight") {
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
                 this.paddle.rightPressed = true;
             }
-            if (e.key === "ArrowLeft") {
+            if (e.key === 'ArrowLeft') {
                 this.paddle.leftPressed = true;
             }
-            if (e.key === " " || e.key === "ArrowUp") {
+            if (e.key === ' ' || e.key === 'ArrowUp') {
                 e.preventDefault();
-                this.ball.launch;
+                this.ball.launch();
             };
         });
-         document.addEventListener("keydown", (e) => {
-            if (e.key === "ArrowRight") {
+         document.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowRight') {
                 this.paddle.rightPressed = false;
             };
-            if (e.key === "ArrowLeft") {
+            if (e.key === 'ArrowLeft') {
                 this.paddle.leftPressed = false;
             };
          });
          canvas.addEventListener("click", () => {
-            this.ball.launch;
+            this.ball.launch();
          });
          canvas.addEventListener("mousemove", (e) => {
             const rect = canvas.getBoundingClientRect();
@@ -403,7 +403,10 @@ class game {
         this.updateUI();
         this.loop();
     };
-/*skipping nextLevel()*/
+/*skipping nextLevel() 4 now*/
+    nextLevel() {
+
+    }
 
     loseLife() {
         this.lives--;
@@ -427,7 +430,65 @@ class game {
         levelDispay.textContent = this.level;
     }
 
-}
+    loop() {
+        /*   - If not running, return early */
+/*   - Clear the canvas: ctx.clearRect(0, 0, canvas.width, canvas.height) */
+/*   - Call paddle.update() */
+/*   - Call ball.update(paddle) */
+/*   - Call checkBallPaddleCollision(ball, paddle) */
+/*   - Call checkBallBrickCollisions(ball, brickGrid) and store returned points */
+/*   - If points > 0: add to score, call updateUI(), flash message briefly */
+/*   - If ball.y - ball.radius > canvas.height: call loseLife() */
+/*   - If brickGrid.allCleared(): add bonus points, call nextLevel() */
+/*   - Call brickGrid.draw() */
+/*   - Call paddle.draw() */
+/*   - Call ball.draw() */
+/*   - Use requestAnimationFrame to call this.loop() again */
+        if (!this.running) {
+            return;
+        };
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        this.paddle.update;
+        this.ball.update(this.paddle);
+        checkBallPaddleCollision(this.ball, this.paddle);
+        const points = checkBallBrickCollisions(this.ball, this.brickGrid);
+        if (points > 0) {
+            this.score+=points;
+            this.updateUI();
+            message.textContent = `+${points}`
+            setTimeout(() => {
+                if (this.running) {
+                    message.textContent = "";
+                };
+            } ,500)
+        };
+        if (this.ball.y - this.ball.radius > canvas.height) {
+            this.loseLife();
+        };  
+        if (this.brickGrid.allCleared()) {
+            this.updateUI();
+            this.nextLevel();
+        };
+        this.brickGrid.draw();
+        this.paddle.draw();
+        this.ball.draw();
+        this.animFrameId = requestAnimationFrame(() => {
+            this.loop();
+        })
+    };
+
+    start() {
+        /* start() method: */
+/*   - Set this.running = true */
+/*   - Set initial message */
+/*   - Call updateUI() */
+/*   - Call this.loop() */
+        this.running = true;
+        message.textContent = "Press Space or click to start";
+        this.updateUI();
+        this.loop();
+    };
+};
 /* setupInput() method: */
 /*   - Listen for 'keydown' events */
 /*       - ArrowRight: set paddle.rightPressed = true */
@@ -502,3 +563,6 @@ class game {
 
 /* Create a new instance of Game */
 /* Call .start() on it */
+
+const game = new Game()
+game.start();
