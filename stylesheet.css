@@ -6,9 +6,13 @@
 /* You can name them anything: --bg, --accent, --highlight, --dark, etc. */
 
 :root {
-    --bg: white;
-    --accent:blue;
-    --text: black;
+    --bg: #030570;
+    --accent:rgb(0, 221, 255);
+    --text: white;
+}
+
+h1 {
+    color: white;
 }
 
 
@@ -64,7 +68,7 @@ span {
 canvas {
     display: block;
     background-color: #030570;
-    border: 2px solid black;
+    border: 2px solid white;
     margin: 15px;
 }
 

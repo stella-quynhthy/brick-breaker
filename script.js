@@ -8,7 +8,7 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext('2d');
 const scoreDisplay = document.getElementById("score");
 const livesDisplay = document.getElementById("lives");
-const levelDispay = document.getElementById("level");
+//const levelDisplay = document.getElementById("level");
 const message = document.getElementById("message");
 const restartBtn = document.getElementById("restartBtn");
 
@@ -20,7 +20,7 @@ const restartBtn = document.getElementById("restartBtn");
 /* Constructor should set: */
 /*   - this.radius (e.g. 8) */
 /*   - Call this.reset() to set starting position and speed */
-class ball {
+class Ball {
     constructor() {
         this.radius = 8;
         this.reset();
@@ -45,11 +45,12 @@ class ball {
     update(paddle) {
         if (!this.launched) {
             this.x = paddle.x+paddle.width/2;
+            return;
         };
         this.x+=this.dx;
         this.y+=this.dy;
         /*left wall*/
-        if (this.x+this.radius < 0) {
+        if (this.x-this.radius < 0) {
             this.x = this.radius;
             this.dx*=-1;
         };
@@ -65,8 +66,8 @@ class ball {
         };
     };
     launch(){
-        if (!this.launch) {
-            this.launch = true;
+        if (!this.launched) {
+            this.launched = true;
             this.dy = -Math.abs(this.dy);
         };
     };
@@ -122,7 +123,7 @@ class ball {
 /* reset() method: */
 /*   - Re-center the paddle horizontally */
 //=================================== CHECKED ONCE =========================================
-class paddle {
+class Paddle {
     constructor() {
         this.width = 90;
         this.height = 12;
@@ -171,7 +172,7 @@ class paddle {
 /*   - Use this.color as the fill */
 /*   - Optional: draw a highlight line near the top of the brick */
 //============================== CHECKED TWICE ================================
-class brick {
+class Brick {
     constructor(x, y, color, points) {
         this.x = x;
         this.y = y;
@@ -185,9 +186,12 @@ class brick {
         if (!this.alive) return;
         
         ctx.beginPath();
-        ctx.roundRect(this.x, this.y, this.width, this.height, 10);
+        ctx.roundRect(this.x, this.y, this.width, this.height, 5);
         ctx.fillStyle = this.color;
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 8;
         ctx.fill();
+        ctx.shadowBlur = 0;
         ctx.closePath();
     };
 };
@@ -222,8 +226,8 @@ class brick {
 /*   - Return true if every brick has alive === false */
 /*   - Hint: use .every() */
 
-class brickGrid {
-    constructor(number) {
+class BrickGrid {
+    constructor(level) {
         this.bricks = [];
         this.cols = 6;
         this.rows = 4 + level;
@@ -242,7 +246,7 @@ class brickGrid {
                 const x = this.offsetLeft + c * (brickWidth + this.padding);
                 const y = this.offsetTop + r * (brickHeight + this.padding);
                 const colorIndex = r%this.color.length;
-                this.bricks.push(new brick(x, y, this.color[colorIndex], this.points[colorIndex]));
+                this.bricks.push(new Brick(x, y, this.color[colorIndex], this.points[colorIndex]));
             };
         };
     };
@@ -313,9 +317,9 @@ function checkBallBrickCollisions(ball, brickGrid) {
             brick.alive = false;
             pointsEarned+=brick.points;
             if (Math.abs(distX) > Math.abs(distY)) {
-                ball.dx*-1;
+                ball.dx*=-1;
             } else {
-                ball.dy*-1;
+                ball.dy*=-1;
             };
             break;
         };
@@ -339,12 +343,12 @@ function checkBallBrickCollisions(ball, brickGrid) {
 /*   - Call this.setupRestart() */
 class Game {
     constructor() {
-        this.ball = new ball();
-        this.paddle = new paddle();
+        this.ball = new Ball();
+        this.paddle = new Paddle();
         this.score = 0;
-        this.lives = 3;
+        this.lives = 5;
         this.level = 1;
-        this.brickGrid = new brickGrid(this.level);
+        this.brickGrid = new BrickGrid(this.level);
         this.running = false;
         this.animFrameId = null;
         this.setupInput();
@@ -378,7 +382,7 @@ class Game {
          canvas.addEventListener("mousemove", (e) => {
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX-rect.left;
-            this.paddle.x = mouseX-this.paddle.width;
+            this.paddle.x = mouseX-this.paddle.width/2;
             this.paddle.x = Math.max(0, Math.min(canvas.width-this.paddle.width, this.paddle.x));
          });
     };
@@ -395,9 +399,9 @@ class Game {
         this.score = 0;
         this.lives = 5;
         this.level = 1;
-        this.brickGrid = new brickGrid(this.level);
-        this.paddle.reset;
-        this.ball.reset;
+        this.brickGrid = new BrickGrid(this.level);
+        this.paddle.reset();
+        this.ball.reset();
         this.running = true;
         message.textContent = "Press SPACE or click to start";
         this.updateUI();
@@ -414,8 +418,8 @@ class Game {
         if (this.lives <= 0) {
             this.gameOver();
         } else {
-            this.paddle.reset;
-            this.ball.reset;
+            this.paddle.reset();
+            this.ball.reset();
         };
     };
 
@@ -427,7 +431,7 @@ class Game {
     updateUI() {
         scoreDisplay.textContent = this.score;
         livesDisplay.textContent = this.lives;
-        levelDispay.textContent = this.level;
+       // levelDisplay.textContent = this.level;
     }
 
     loop() {
@@ -448,7 +452,7 @@ class Game {
             return;
         };
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        this.paddle.update;
+        this.paddle.update();
         this.ball.update(this.paddle);
         checkBallPaddleCollision(this.ball, this.paddle);
         const points = checkBallBrickCollisions(this.ball, this.brickGrid);
@@ -467,14 +471,14 @@ class Game {
         };  
         if (this.brickGrid.allCleared()) {
             this.updateUI();
-            this.nextLevel();
+            this.gameOver();
         };
         this.brickGrid.draw();
         this.paddle.draw();
         this.ball.draw();
         this.animFrameId = requestAnimationFrame(() => {
             this.loop();
-        })
+        });
     };
 
     start() {
