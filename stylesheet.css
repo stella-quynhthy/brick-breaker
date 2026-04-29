@@ -21,7 +21,13 @@ h1 {
 /* Reset these so your layout behaves consistently */
 /* Also set box-sizing: border-box so padding doesn't break your widths */
 
+span {
+    color: white;
+}
 
+p {
+    color: white;
+}
 
 
 /* STEP 3: Style the body */
@@ -91,8 +97,9 @@ canvas {
 /* Add a transition so hover feels smooth */
 #restartBtn {
     padding: 10px;
+    font-family: 'Courier New', Courier, monospace;
+    color: #030570;
 }
-
 
 
 /* STEP 9: Style the #restartBtn:hover state */
